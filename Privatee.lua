@@ -2,7 +2,7 @@
 local configs = {
     main = {
         enabled = false, -- status
-        prediction = 0.1226781,
+        prediction = 0.116,
         aimpart = 'HumanoidRootPart', -- Options: Head, UpperTorso, HumanoidRootPart, LowerTorso
         notifications = true
     }
