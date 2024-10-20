@@ -1,15 +1,14 @@
--- main aimlock settings
+-- Main aimlock settings
 local configs = {
     main = {
-        enabled = true,
-        aimlockkey = "c", -- This is ignored.
+        enabled = false, -- status
         prediction = 0.1226781,
-        aimpart = 'HumanoidRootPart', -- Head, UpperTorso, HumanoidRootPart, LowerTorso
+        aimpart = 'HumanoidRootPart', -- Options: Head, UpperTorso, HumanoidRootPart, LowerTorso
         notifications = true
     }
 }
 
--- box / marker settings
+-- Box / marker settings
 local boxsettings = {
     box = {
         Showbox = true,
@@ -18,14 +17,46 @@ local boxsettings = {
         markersize = UDim2.new(1, 0, 3, 0) -- Marker Size
     }
 }
+local Lnr = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local TextButton = Instance.new("TextButton")
+local UICorner_2 = Instance.new("UICorner")
 
-local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
-local TextButton = Instance.new("TextButton", ScreenGui)
-TextButton.Size = UDim2.new(0, 100, 0, 50)
-TextButton.Position = UDim2.new(0.5, -50, 0.9, -25)
+Lnr.Name = "Lnr"
+Lnr.Parent = game.CoreGui
+Lnr.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Frame.Parent = Lnr
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0.5, -75, 0.5, -25)
+Frame.Size = UDim2.new(0, 150, 0, 50)
+Frame.Active = true
+Frame.Draggable = true
+
+local function TopContainer()
+    Frame.Position = UDim2.new(0.5, -Frame.AbsoluteSize.X / 2, 0.5, -Frame.AbsoluteSize.Y / 2)
+end
+
+TopContainer()
+Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(TopContainer)
+
+UICorner.Parent = Frame
+
+TextButton.Parent = Frame
+TextButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.BorderSizePixel = 0
+TextButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+TextButton.Size = UDim2.new(0.8, 0, 0.6, 0)
+TextButton.Font = Enum.Font.GothamSemibold
+TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.TextSize = 14
 TextButton.Text = "Lock: Off"
 
--- L
+-- Box for aimlock marker
 local box = Instance.new("Part", game.Workspace)
 local Mouse = game.Players.LocalPlayer:GetMouse()
 
@@ -46,6 +77,7 @@ function makemarker(Parent, Adornee, Color, Size, Size2)
 end
 
 local Plr
+
 TextButton.MouseButton1Click:Connect(function()
     if configs.main.enabled then
         configs.main.enabled = false
@@ -76,7 +108,7 @@ function noob(player)
     repeat
         wait()
     until player.Character
-    local handler = makemarker(guimain, player.Character:WaitForChild(configs.main.aimpart),
+    local handler = makemarker(Lnr, player.Character:WaitForChild(configs.main.aimpart),
         Color3.fromRGB(107, 184, 255), 0.10, 8)
     handler.Name = player.Name
     player.CharacterAdded:connect(function(Char)
@@ -127,11 +159,11 @@ function FindClosestUser()
 end
 
 game:GetService("RunService").Stepped:connect(function()
-    if configs.main.enabled and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") then
+    if configs.main.enabled and Plr and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") then
         box.CFrame = CFrame.new(Plr.Character[configs.main.aimpart].Position +
-                                    (Plr.Character.UpperTorso.Velocity * configs.main.prediction))
+                                    (Plr.Character[configs.main.aimpart].Velocity * configs.main.prediction))
     else
-        box.CFrame = CFrame.new(0, 9999, 0)
+        box.CFrame = CFrame.new(0, 9999, 0) -- Hide box if aimlock is off
     end
 end)
 
