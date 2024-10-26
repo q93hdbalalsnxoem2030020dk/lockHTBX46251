@@ -63,11 +63,15 @@ function getClosestPlayerToCursor()
 
     for i, v in pairs(game.Players:GetPlayers()) do
         if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            local pos = CC:WorldToViewportPoint(v.Character.PrimaryPart.Position)
-            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
-            if magnitude < shortestDistance then
-                closestPlayer = v
-                shortestDistance = magnitude
+            local pos, onScreen = CC:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+            
+            -- Ensure the player is visible on the screen
+            if onScreen then
+                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+                if magnitude < shortestDistance then
+                    closestPlayer = v
+                    shortestDistance = magnitude
+                end
             end
         end
     end
@@ -94,6 +98,7 @@ mt.__namecall = newcclosure(function(...)
     return old(...)
 end)
 
+-- Replaced:
 local Lnr = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
@@ -135,7 +140,12 @@ TextButton.Text = "{off}"
 
 UICorner_2.Parent = TextButton
 
+local debounce = false
+
 TextButton.MouseButton1Click:Connect(function()
+    if debounce then return end
+    debounce = true
+    
     if enabled then
         enabled = false
         TextButton.Text = "{off}"
@@ -150,4 +160,7 @@ TextButton.MouseButton1Click:Connect(function()
             guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         end
     end
+    
+    wait(0.2)
+    debounce = false
 end)
