@@ -21,11 +21,13 @@ function makemarker(Parent, Adornee, Color, Size, Size2)
 end
 
 local data = game.Players:GetPlayers()
+
 function noob(player)
     local character
     repeat wait() until player.Character
-    local handler = makemarker(guimain, player.Character:WaitForChild("HumanoidRootPart"), Color3.fromRGB(176, 196, 222), 0.3, 3)
+    local handler = makemarker(placemarker, player.Character:WaitForChild("HumanoidRootPart"), Color3.fromRGB(176, 196, 222), 0.3, 3)
     handler.Name = player.Name
+
     player.CharacterAdded:connect(function(Char)
         handler.Adornee = Char:WaitForChild("HumanoidRootPart")
     end)
@@ -33,7 +35,15 @@ function noob(player)
     spawn(function()
         while wait() do
             if player.Character then
-                TextLabel.Text = player.Name .. tostring(player:WaitForChild("leaderstats").Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health))
+                local leaderstats = player:FindFirstChild("leaderstats")
+                local gunspork = player:FindFirstChild("gunspork") -- Check for gunspork
+                
+                -- Only access gunspork if it exists
+                if leaderstats and leaderstats:FindFirstChild("Wanted") and gunspork then
+                    TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: " .. tostring(gunspork.Value)
+                elseif leaderstats and leaderstats:FindFirstChild("Wanted") then
+                    TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: N/A"
+                end
             end
         end
     end)
@@ -57,16 +67,20 @@ spawn(function()
     makemarker(placemarker, placemarker, Color3.fromRGB(74, 65, 42), 0.40, 0)
 end)
 
+function isInCameraView(player)
+    local playerPos = player.Character.HumanoidRootPart.Position
+    local viewportPoint = CC:WorldToViewportPoint(playerPos)
+    return viewportPoint.Z > 0 and viewportPoint.X > 0 and viewportPoint.X < CC.ViewportSize.X and viewportPoint.Y > 0 and viewportPoint.Y < CC.ViewportSize.Y
+end
+
 function getClosestPlayerToCursor()
     local closestPlayer
     local shortestDistance = math.huge
 
-    for i, v in pairs(game.Players:GetPlayers()) do
+    for _, v in pairs(game.Players:GetPlayers()) do
         if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            local pos, onScreen = CC:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
-            
-            -- Ensure the player is visible on the screen
-            if onScreen then
+            if isInCameraView(v) then
+                local pos = CC:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
                 local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
                 if magnitude < shortestDistance then
                     closestPlayer = v
@@ -98,7 +112,6 @@ mt.__namecall = newcclosure(function(...)
     return old(...)
 end)
 
--- Replaced:
 local Lnr = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
@@ -140,27 +153,23 @@ TextButton.Text = "{off}"
 
 UICorner_2.Parent = TextButton
 
-local debounce = false
-
 TextButton.MouseButton1Click:Connect(function()
-    if debounce then return end
-    debounce = true
-    
     if enabled then
         enabled = false
         TextButton.Text = "{off}"
-        if Plr and guimain[Plr.Name] then
+        if Plr and guimain and guimain[Plr.Name] then
             guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         end
     else
         enabled = true
         Plr = getClosestPlayerToCursor()
         TextButton.Text = "{on}"
-        if Plr and guimain[Plr.Name] then
+        if Plr and guimain and guimain[Plr.Name] then
             guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         end
     end
-    
-    wait(0.2)
-    debounce = false
+end)
+
+TextButton:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    TextButton.Position = UDim2.new(0.1, 0, 0.2, 0)
 end)
