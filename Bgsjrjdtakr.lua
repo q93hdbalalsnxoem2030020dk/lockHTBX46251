@@ -36,7 +36,7 @@ function noob(player)
         while wait() do
             if player.Character then
                 local leaderstats = player:FindFirstChild("leaderstats")
-                local gunspork = player:FindFirstChild("gunspork") -- Check for gunspork
+                local gunspork = player:FindFirstChild("gunspork")
                 
                 if leaderstats and leaderstats:FindFirstChild("Wanted") and gunspork then
                     TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: " .. tostring(gunspork.Value)
@@ -73,17 +73,30 @@ function isInCameraView(player)
 end
 
 function isPlayerVisible(player)
-    local startPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    local localCharacter = game.Players.LocalPlayer.Character
+    if not localCharacter or not localCharacter:FindFirstChild("HumanoidRootPart") then
+        return false
+    end
+
+    local startPosition = localCharacter.HumanoidRootPart.Position
     local endPosition = player.Character.HumanoidRootPart.Position
+    local direction = (endPosition - startPosition).Unit * (startPosition - endPosition).Magnitude
 
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    raycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character, player.Character}
+    raycastParams.FilterDescendantsInstances = {localCharacter, player.Character}
+    raycastParams.IgnoreWater = true
 
-    local rayResult = game.Workspace:Raycast(startPosition, endPosition - startPosition, raycastParams)
+    local rayResult = game.Workspace:Raycast(startPosition, direction, raycastParams)
 
-    -- Return true if no part is hit, meaning the player is visible
-    return rayResult == nil
+    if rayResult then
+        if rayResult.Instance:IsDescendantOf(player.Character) then
+            return true
+        end
+        return false
+    else
+        return true
+    end
 end
 
 function getClosestPlayerToCursor()
