@@ -38,7 +38,6 @@ function noob(player)
                 local leaderstats = player:FindFirstChild("leaderstats")
                 local gunspork = player:FindFirstChild("gunspork") -- Check for gunspork
                 
-                -- Only access gunspork if it exists
                 if leaderstats and leaderstats:FindFirstChild("Wanted") and gunspork then
                     TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: " .. tostring(gunspork.Value)
                 elseif leaderstats and leaderstats:FindFirstChild("Wanted") then
@@ -73,13 +72,27 @@ function isInCameraView(player)
     return viewportPoint.Z > 0 and viewportPoint.X > 0 and viewportPoint.X < CC.ViewportSize.X and viewportPoint.Y > 0 and viewportPoint.Y < CC.ViewportSize.Y
 end
 
+function isPlayerVisible(player)
+    local startPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    local endPosition = player.Character.HumanoidRootPart.Position
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    raycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character, player.Character}
+
+    local rayResult = game.Workspace:Raycast(startPosition, endPosition - startPosition, raycastParams)
+
+    -- Return true if no part is hit, meaning the player is visible
+    return rayResult == nil
+end
+
 function getClosestPlayerToCursor()
     local closestPlayer
     local shortestDistance = math.huge
 
     for _, v in pairs(game.Players:GetPlayers()) do
         if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            if isInCameraView(v) then
+            if isInCameraView(v) and isPlayerVisible(v) then
                 local pos = CC:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
                 local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
                 if magnitude < shortestDistance then
