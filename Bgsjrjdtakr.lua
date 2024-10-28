@@ -99,25 +99,6 @@ function isPlayerVisible(player)
     end
 end
 
-function getClosestPlayerToCursor()
-    local closestPlayer
-    local shortestDistance = math.huge
-
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            if isInCameraView(v) and isPlayerVisible(v) then
-                local pos = CC:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
-                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
-                if magnitude < shortestDistance then
-                    closestPlayer = v
-                    shortestDistance = magnitude
-                end
-            end
-        end
-    end
-    return closestPlayer
-end
-
 game:GetService("RunService").Stepped:connect(function()
     if enabled and Plr and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") then
         placemarker.CFrame = CFrame.new(Plr.Character.HumanoidRootPart.Position + (Plr.Character.HumanoidRootPart.Velocity * accomidationfactor))
@@ -188,11 +169,7 @@ TextButton.MouseButton1Click:Connect(function()
         end
     else
         enabled = true
-        Plr = getClosestPlayerToCursor()
         TextButton.Text = "{on}"
-        if Plr and guimain and guimain[Plr.Name] then
-            guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-        end
     end
 end)
 
