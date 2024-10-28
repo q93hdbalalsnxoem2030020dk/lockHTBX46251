@@ -100,7 +100,7 @@ function isPlayerVisible(player)
 end
 
 game:GetService("RunService").Stepped:connect(function()
-    if enabled and Plr and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") then
+    if enabled and Plr and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") and isInCameraView(Plr) and isPlayerVisible(Plr) then
         placemarker.CFrame = CFrame.new(Plr.Character.HumanoidRootPart.Position + (Plr.Character.HumanoidRootPart.Velocity * accomidationfactor))
     else
         placemarker.CFrame = CFrame.new(0, 9999, 0)
@@ -112,7 +112,7 @@ local old = mt.__namecall
 setreadonly(mt, false)
 mt.__namecall = newcclosure(function(...)
     local args = {...}
-    if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
+    if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" and Plr and isInCameraView(Plr) and isPlayerVisible(Plr) then
         args[3] = Plr.Character.HumanoidRootPart.Position + (Plr.Character.HumanoidRootPart.Velocity * accomidationfactor)
         return old(unpack(args))
     end
