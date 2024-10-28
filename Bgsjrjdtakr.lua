@@ -1,124 +1,104 @@
+
+-- Toggle key is Q
+getgenv().Target = true
+-- Configuration
+getgenv().Key = Enum.KeyCode.Q
+getgenv().Prediction = 0.130340
+getgenv().ChatMode = false
+getgenv().NotifMode = true
+getgenv().PartMode = true
+getgenv().AirshotFunccc = true
+getgenv().Partz = "LowerTorso"
+getgenv().AutoPrediction = false
+--
+_G.Types = {
+    Ball = Enum.PartType.Ball,
+    Block = Enum.PartType.Block,
+    Cylinder = Enum.PartType.Cylinder
+}
+
+-- Variables
+local Tracer = Instance.new("Part", game.Workspace)
+Tracer.Name = "gay"
+Tracer.Anchored = true
+Tracer.CanCollide = false
+Tracer.Transparency = 0.8
+Tracer.Parent = game.Workspace
+Tracer.Shape = _G.Types.Block
+Tracer.Size = Vector3.new(14, 14, 14)
+Tracer.Color = Color3.fromRGB(16, 0, 22)
+
+local plr = game.Players.LocalPlayer
+local mouse = plr:GetMouse()
+local Runserv = game:GetService("RunService")
+
+circle = Drawing.new("Circle")
+circle.Color = Color3.fromRGB(255, 255, 255)
+circle.Thickness = 0
+circle.NumSides = 732
+circle.Radius = 732
+circle.Transparency = 0.9
+circle.Visible = false
+circle.Filled = false
+
+Runserv.RenderStepped:Connect(function()
+    circle.Position = Vector2.new(mouse.X, mouse.Y + 35)
+end)
+
+local guimain = Instance.new("Folder", game.CoreGui)
 local CC = game:GetService("Workspace").CurrentCamera
-local Plr
-local enabled = false
-local accomidationfactor = 0.12
-local mouse = game.Players.LocalPlayer:GetMouse()
-local placemarker = Instance.new("Part", game.Workspace)
+local LocalMouse = game.Players.LocalPlayer:GetMouse()
+local Locking = false
 
-function makemarker(Parent, Adornee, Color, Size, Size2)
-    local e = Instance.new("BillboardGui", Parent)
-    e.Name = "PP"
-    e.Adornee = Adornee
-    e.Size = UDim2.new(Size, Size2, Size, Size2)
-    e.AlwaysOnTop = true
-    local a = Instance.new("Frame", e)
-    a.Size = UDim2.new(1, 0, 1, 0)
-    a.BackgroundTransparency = 0
-    a.BackgroundColor3 = Color
-    local g = Instance.new("UICorner", a)
-    g.CornerRadius = UDim.new(50, 50)
-    return e
-end
+-- Original UserInputService Handling (unchanged)
+local UserInputService = game:GetService("UserInputService")
 
-local data = game.Players:GetPlayers()
-
-function noob(player)
-    local character
-    repeat wait() until player.Character
-    local handler = makemarker(placemarker, player.Character:WaitForChild("HumanoidRootPart"), Color3.fromRGB(176, 196, 222), 0.3, 3)
-    handler.Name = player.Name
-
-    player.CharacterAdded:connect(function(Char)
-        handler.Adornee = Char:WaitForChild("HumanoidRootPart")
-    end)
-
-    spawn(function()
-        while wait() do
-            if player.Character then
-                local leaderstats = player:FindFirstChild("leaderstats")
-                local gunspork = player:FindFirstChild("gunspork")
-                
-                if leaderstats and leaderstats:FindFirstChild("Wanted") and gunspork then
-                    TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: " .. tostring(gunspork.Value)
-                elseif leaderstats and leaderstats:FindFirstChild("Wanted") then
-                    TextLabel.Text = player.Name .. " | " .. tostring(leaderstats.Wanted.Value) .. " | " .. tostring(math.floor(player.Character:WaitForChild("Humanoid").Health)) .. " | Gunspork: N/A"
+UserInputService.InputBegan:Connect(function(keygo, ok)
+    if (not ok) then
+        if (keygo.KeyCode == getgenv().Key) then
+            if getgenv().Target == true then
+                Locking = not Locking
+                if Locking then
+                    Plr = getClosestPlayerToCursor()
+                    if getgenv().ChatMode then
+                        local A_1 = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
+                        local A_2 = "All"
+                        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                        Event:FireServer(A_1, A_2)
+                    end
+                    if getgenv().NotifMode then
+                        game.StarterGui:SetCore("SendNotification", {
+                            Title = "<3 Chloe <3#7316's Lock",
+                            Text = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
+                        })
+                    end
+                elseif not Locking then
+                    if getgenv().ChatMode then
+                        local A_1 = "Unlocked!"
+                        local A_2 = "All"
+                        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                        Event:FireServer(A_1, A_2)
+                    end
+                    if getgenv().NotifMode then
+                        game.StarterGui:SetCore("SendNotification", {
+                            Title = "<3 Chloe <3#7316's Lock",
+                            Text = "unlocked",
+                            Duration = 1
+                        })
+                    end
                 end
+            else
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "lock",
+                    Text = "target isn't enabled",
+                    Duration = 1
+                })
             end
         end
-    end)
-end
-
-for i = 1, #data do
-    if data[i] ~= game.Players.LocalPlayer then
-        noob(data[i])
-    end
-end
-
-game.Players.PlayerAdded:connect(function(Player)
-    noob(Player)
-end)
-
-spawn(function()
-    placemarker.Anchored = true
-    placemarker.CanCollide = false
-    placemarker.Size = Vector3.new(8, 8, 8)
-    placemarker.Transparency = 0.75
-    makemarker(placemarker, placemarker, Color3.fromRGB(74, 65, 42), 0.40, 0)
-end)
-
-function isInCameraView(player)
-    local playerPos = player.Character.HumanoidRootPart.Position
-    local viewportPoint = CC:WorldToViewportPoint(playerPos)
-    return viewportPoint.Z > 0 and viewportPoint.X > 0 and viewportPoint.X < CC.ViewportSize.X and viewportPoint.Y > 0 and viewportPoint.Y < CC.ViewportSize.Y
-end
-
-function isPlayerVisible(player)
-    local localCharacter = game.Players.LocalPlayer.Character
-    if not localCharacter or not localCharacter:FindFirstChild("HumanoidRootPart") then
-        return false
-    end
-
-    local startPosition = localCharacter.HumanoidRootPart.Position
-    local endPosition = player.Character.HumanoidRootPart.Position
-    local direction = (endPosition - startPosition).Unit * (startPosition - endPosition).Magnitude
-
-    local raycastParams = RaycastParams.new()
-    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    raycastParams.FilterDescendantsInstances = {localCharacter, player.Character}
-    raycastParams.IgnoreWater = true
-
-    local rayResult = game.Workspace:Raycast(startPosition, direction, raycastParams)
-
-    if rayResult then
-        if rayResult.Instance:IsDescendantOf(player.Character) then
-            return true
-        end
-        return false
-    else
-        return true
-    end
-end
-
-game:GetService("RunService").Stepped:connect(function()
-    if enabled and Plr and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart") and isInCameraView(Plr) and isPlayerVisible(Plr) then
-        placemarker.CFrame = CFrame.new(Plr.Character.HumanoidRootPart.Position + (Plr.Character.HumanoidRootPart.Velocity * accomidationfactor))
-    else
-        placemarker.CFrame = CFrame.new(0, 9999, 0)
     end
 end)
 
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt, false)
-mt.__namecall = newcclosure(function(...)
-    local args = {...}
-    if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" and Plr and isInCameraView(Plr) and isPlayerVisible(Plr) then
-        args[3] = Plr.Character.HumanoidRootPart.Position + (Plr.Character.HumanoidRootPart.Velocity * accomidationfactor)
-        return old(unpack(args))
-    end
-    return old(...)
-end)
-
+-- Button GUI (new addition)
 local Lnr = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
@@ -156,23 +136,59 @@ TextButton.Size = UDim2.new(0.8, 0, 0.6, 0)
 TextButton.Font = Enum.Font.GothamSemibold
 TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextButton.TextSize = 14
-TextButton.Text = "{off}"
+TextButton.Text = "Q Toggle"
 
 UICorner_2.Parent = TextButton
 
+-- Button Functionality
 TextButton.MouseButton1Click:Connect(function()
-    if enabled then
-        enabled = false
-        TextButton.Text = "{off}"
-        if Plr and guimain and guimain[Plr.Name] then
-            guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        end
-    else
-        enabled = true
-        TextButton.Text = "{on}"
-    end
+    UserInputService.InputBegan:Fire({KeyCode = getgenv().Key}, false)
 end)
 
-TextButton:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-    TextButton.Position = UDim2.new(0.1, 0, 0.2, 0)
-end)
+-- Other functions
+function getClosestPlayerToCursor()
+    local closestPlayer
+    local shortestDistance = circle.Radius
+
+    for i, v in pairs(game.Players:GetPlayers()) do
+        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("LowerTorso") then
+            local pos = CC:WorldToViewportPoint(v.Character.PrimaryPart.Position)
+            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(LocalMouse.X, LocalMouse.Y)).magnitude
+            if magnitude < shortestDistance then
+                closestPlayer = v
+                shortestDistance = magnitude
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Ping adjustment
+while wait() do
+    if getgenv().AutoPrediction == true then
+        local pingvalue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+        local split = string.split(pingvalue, '(')
+        local ping = tonumber(split[1])
+        if ping < 130 then
+            getgenv().Prediction = 0.151
+        elseif ping < 125 then
+            getgenv().Prediction = 0.149
+        elseif ping < 110 then
+            getgenv().Prediction = 0.146
+        elseif ping < 105 then
+            getgenv().Prediction = 0.138
+        elseif ping < 90 then
+            getgenv().Prediction = 0.136
+        elseif ping < 80 then
+            getgenv().Prediction = 0.134
+        elseif ping < 70 then
+            getgenv().Prediction = 0.131
+        elseif ping < 60 then
+            getgenv().Prediction = 0.1229
+        elseif ping < 50 then
+            getgenv().Prediction = 0.1225
+        elseif ping < 40 then
+            getgenv().Prediction = 0.1256
+        end
+    end
+end
