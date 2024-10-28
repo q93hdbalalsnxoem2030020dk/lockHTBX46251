@@ -1,4 +1,3 @@
-
 -- Toggle key is Q
 getgenv().Target = true
 -- Configuration
@@ -50,55 +49,55 @@ local CC = game:GetService("Workspace").CurrentCamera
 local LocalMouse = game.Players.LocalPlayer:GetMouse()
 local Locking = false
 
--- Original UserInputService Handling (unchanged)
-local UserInputService = game:GetService("UserInputService")
-
-UserInputService.InputBegan:Connect(function(keygo, ok)
-    if (not ok) then
-        if (keygo.KeyCode == getgenv().Key) then
-            if getgenv().Target == true then
-                Locking = not Locking
-                if Locking then
-                    Plr = getClosestPlayerToCursor()
-                    if getgenv().ChatMode then
-                        local A_1 = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
-                        local A_2 = "All"
-                        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-                        Event:FireServer(A_1, A_2)
-                    end
-                    if getgenv().NotifMode then
-                        game.StarterGui:SetCore("SendNotification", {
-                            Title = "<3 Chloe <3#7316's Lock",
-                            Text = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
-                        })
-                    end
-                elseif not Locking then
-                    if getgenv().ChatMode then
-                        local A_1 = "Unlocked!"
-                        local A_2 = "All"
-                        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-                        Event:FireServer(A_1, A_2)
-                    end
-                    if getgenv().NotifMode then
-                        game.StarterGui:SetCore("SendNotification", {
-                            Title = "<3 Chloe <3#7316's Lock",
-                            Text = "unlocked",
-                            Duration = 1
-                        })
-                    end
-                end
-            else
+local function ToggleLock()
+    if getgenv().Target == true then
+        Locking = not Locking
+        if Locking then
+            Plr = getClosestPlayerToCursor()
+            if getgenv().ChatMode then
+                local A_1 = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
+                local A_2 = "All"
+                local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                Event:FireServer(A_1, A_2)
+            end
+            if getgenv().NotifMode then
                 game.StarterGui:SetCore("SendNotification", {
-                    Title = "lock",
-                    Text = "target isn't enabled",
+                    Title = "<3 Chloe <3#7316's Lock",
+                    Text = "Target: "..tostring(Plr.Character.Humanoid.DisplayName)
+                })
+            end
+        else
+            if getgenv().ChatMode then
+                local A_1 = "Unlocked!"
+                local A_2 = "All"
+                local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                Event:FireServer(A_1, A_2)
+            end
+            if getgenv().NotifMode then
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "<3 Chloe <3#7316's Lock",
+                    Text = "unlocked",
                     Duration = 1
                 })
             end
         end
+    else
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "lock",
+            Text = "target isn't enabled",
+            Duration = 1
+        })
+    end
+end
+
+-- Original Key Binding (kys)
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(keygo, ok)
+    if not ok and keygo.KeyCode == getgenv().Key then
+        ToggleLock()
     end
 end)
 
--- Button GUI (new addition)
 local Lnr = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
@@ -139,13 +138,9 @@ TextButton.TextSize = 14
 TextButton.Text = "Q Toggle"
 
 UICorner_2.Parent = TextButton
+TextButton.MouseButton1Click:Connect(ToggleLock)
 
--- Button Functionality
-TextButton.MouseButton1Click:Connect(function()
-    UserInputService.InputBegan:Fire({KeyCode = getgenv().Key}, false)
-end)
-
--- Other functions
+-- Other functions (unchanged)
 function getClosestPlayerToCursor()
     local closestPlayer
     local shortestDistance = circle.Radius
