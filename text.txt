@@ -1,15 +1,4 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.5) ~  Much Love, Ferib 
-
-]]--
-
--- Bald idea, idk if this works.
+-- idk if this works.
 
 local Lnr = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
@@ -51,15 +40,25 @@ TextButton.TextSize = 14
 TextButton.Text = "{off}"
 
 UICorner_2.Parent = TextButton
+getgenv().Target = true
+getgenv().Key = Enum.KeyCode.Q
+getgenv().Prediction = 0.1433333333392
+getgenv().NotifMode = true
+    getgenv().PartMode = true
+    getgenv().AirshotFunccc = true
+    getgenv().Partz = "LowerTorso"
+getgenv().AutoPrediction = true
 
-local v0=loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/Dynissimo/main/Scripts/AkaliNotif.lua"))();local v1=v0.Notify;getgenv().Target=true;getgenv().Key=Enum.KeyCode.C;getgenv().Prediction=0.1266217616 + 0 ;getgenv().ChatMode=false;getgenv().NotifMode=true;getgenv().PartMode=true;getgenv().AirshotFunccc=true;getgenv().Partz="UpperTorso";getgenv().AutoPrediction=true;_G.Types={Ball=Enum.PartType.Ball,Block=Enum.PartType.Block,Cylinder=Enum.PartType.Cylinder};local v12=Instance.new("Part",game.Workspace);v12.Name="gay";v12.Anchored=true;v12.CanCollide=false;v12.Transparency=0.3 + 0 ;v12.Parent=game.Workspace;v12.Shape=_G.Types.Ball;v12.Size=Vector3.new(884 -(282 + 595) ,1644 -(1523 + 114) ,7 + 0 );v12.Color=Color3.fromRGB(363 -108 ,5,5);getgenv().keytoclick="C";tool=Instance.new("Tool");tool.RequiresHandle=false;tool.Name="Aimlock";tool.Activated:connect(function() local v48=game:service("VirtualInputManager");v48:SendKeyEvent(true,keytoclick,false,game);end);tool.Parent=game.Players.LocalPlayer.Backpack;game.StarterGui:SetCore("SendNotification",{Title="Sub to Ryzzchips",Text="Thanks for using my Script!"});local v27=game.Players.LocalPlayer;local function v28() v27.CharacterAdded:Connect(onCharacterAdded);end v28();v27.CharacterRemoving:Connect(function() tool.Parent=game.Players.LocalPlayer.Backpack;end);local v29=game.Players.LocalPlayer;local v30=v29:GetMouse();local v31=game:GetService("RunService");circle=Drawing.new("Circle");circle.Color=Color3.fromRGB(255,1070 -(68 + 997) ,1275 -(226 + 1044) );circle.Thickness=0;circle.NumSides=3187 -2455 ;circle.Radius=237 -(32 + 85) ;circle.Thickness=0;circle.Transparency=0.7 + 0 ;circle.Visible=true;circle.Filled=false;v31.RenderStepped:Connect(function() circle.Position=Vector2.new(v30.X,v30.Y + 35 );end);local v39=Instance.new("Folder",game.CoreGui);local v40=game:GetService("Workspace").CurrentCamera;local v41=game.Players.LocalPlayer:GetMouse();local v42=false;if (getgenv().valiansh==true) then game.StarterGui:SetCore("SendNotification",{Title="Super Red l Private",Text="Already Loaded!",Duration=2 + 3 });return;end getgenv().valiansh=true;local v44=game:GetService("UserInputService");v44.InputBegan:Connect(function(v52,v53) if  not v53 then if (v52.KeyCode==getgenv().Key) then if (getgenv().Target==true) then v42= not v42;if v42 then local v75=0;while true do if (v75==1) then if getgenv().NotifMode then v1({Description="Target: "   .. tostring(Plr.Character.Humanoid.DisplayName) ,Title="Super Red l Private",Duration=962 -(892 + 65) });end break;end if (v75==(0 -0)) then Plr=getClosestPlayerToCursor();if getgenv().ChatMode then local v84="Target: "   .. tostring(Plr.Character.Humanoid.DisplayName) ;local v85="All";local v86=game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest;v86:FireServer(v84,v85);end v75=1;end end elseif  not v42 then if getgenv().ChatMode then local v79=0;local v80;local v81;local v82;while true do if (v79==(0 -0)) then v80="Unlocked!";v81="All";v79=1;end if (v79==(1 -0)) then v82=game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest;v82:FireServer(v80,v81);break;end end end if getgenv().NotifMode then v1({Description="Unlocked",Title="Super Red l Private",Duration=355 -(87 + 263) });elseif (getgenv().Target==false) then v1({Description="Target isn't enabled",Title="Super RedQ l Private",Duration=185 -(67 + 113) });end end end end end end);function getClosestPlayerToCursor() local v54;local v55=circle.Radius;for v58,v59 in pairs(game.Players:GetPlayers()) do if ((v59~=game.Players.LocalPlayer) and v59.Character and v59.Character:FindFirstChild("Humanoid") and (v59.Character.Humanoid.Health~=(0 + 0)) and v59.Character:FindFirstChild("LowerTorso")) then local v63=v40:WorldToViewportPoint(v59.Character.PrimaryPart.Position);local v64=(Vector2.new(v63.X,v63.Y) -Vector2.new(v41.X,v41.Y)).magnitude;if (v64<v55) then v54=v59;v55=v64;end end end return v54;end if getgenv().PartMode then game:GetService("RunService").Stepped:connect(function() if (v42 and Plr.Character and Plr.Character:FindFirstChild("LowerTorso")) then v12.CFrame=CFrame.new(Plr.Character.LowerTorso.Position + (Plr.Character.LowerTorso.Velocity * Prediction) );else v12.CFrame=CFrame.new(0,24548 -14549 ,0 + 0 );end end);end local v45=getrawmetatable(game);local v46=v45.__namecall;setreadonly(v45,false);v45.__namecall=newcclosure(function(...) local v56=0 -0 ;local v57;while true do if (v56==(953 -(802 + 150))) then return v46(...);end if (v56==(0 -0)) then v57={...};if (v42 and (getnamecallmethod()=="FireServer") and (v57[2]=="UpdateMousePos")) then local v71=0 + 0 ;while true do if (v71==(997 -(915 + 82))) then v57[8 -5 ]=Plr.Character[getgenv().Partz].Position + (Plr.Character[getgenv().Partz].Velocity * Prediction) ;return v46(unpack(v57));end end end v56=1 + 0 ;end end end);if (getgenv().AirshotFunccc==true) then if ((Plr.Character.Humanoid.Jump==true) and (Plr.Character.Humanoid.FloorMaterial==Enum.Material.Air)) then getgenv().Partz="RightFoot";else Plr.Character:WaitForChild("Humanoid").StateChanged:Connect(function(v68,v69) if (v69==Enum.HumanoidStateType.Freefall) then getgenv().Partz="RightFoot";else getgenv().Partz="LowerTorso";end end);end end while wait() do if (getgenv().AutoPrediction==true) then local v60=game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString();local v61=string.split(v60,"(");local v62=tonumber(v61[1 -0 ]);if (v62<130) then getgenv().Prediction=0.151;elseif (v62<(1312 -(1069 + 118))) then getgenv().Prediction=0.149 -0 ;elseif (v62<(240 -130)) then getgenv().Prediction=0.146 + 0 ;elseif (v62<105) then getgenv().Prediction=0.138 -0 ;elseif (v62<(90 + 0)) then getgenv().Prediction=0.136;elseif (v62<(871 -(368 + 423))) then getgenv().Prediction=0.134 -0 ;elseif (v62<(88 -(10 + 8))) then getgenv().Prediction=0.131;elseif (v62<(230 -170)) then getgenv().Prediction=442.1229 -(416 + 26) ;elseif (v62<50) then getgenv().Prediction=0.1225 -0 ;elseif (v62<(18 + 22)) then getgenv().Prediction=0.1256 -0 ;end end end
+-- Twish is daddy UwU --
+loadstring(game:HttpGet("https://gist.githubusercontent.com/twishh/c4d67a9a0676e20165716d24b4944108/raw/0c1f052029185c1b7bb91b7bbb13472c49334aee/gistfile1.txt"))()
 
 local function sendKeyEvent()
     local virtualInput = game:GetService("VirtualInputManager")
-    virtualInput:SendKeyEvent(true, Enum.KeyCode.C, false, game)
+    virtualInput:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
     wait(0.1)
-    virtualInput:SendKeyEvent(false, Enum.KeyCode.C, false, game)
+    virtualInput:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
 end
+
 TextButton.MouseButton1Click:Connect(function()
     sendKeyEvent()
     
