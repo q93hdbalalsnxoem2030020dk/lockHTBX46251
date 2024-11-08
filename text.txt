@@ -1,145 +1,56 @@
-getgenv().Prediction = 0.131
-getgenv().AirshotFunc = true
+_G.PART = "HumanoidRootPart"
+_G.PRED = 0.13960
+_G.T = 0.7
 
-local new = { 
-    main = { 
-        Mario = false,
-        Part = "HumanoidRootPart",
-        Key = "q",
-        Notifications = true,
-    },
-    Tracer = { 
-        TracerThickness = 3.5,
-        TracerTransparency = 1,
-        TracerColor = Color3.fromRGB(148,0,211)
-    }
-}
-
-local CurrentCamera = game:GetService("Workspace").CurrentCamera
-local Mouse = game.Players.LocalPlayer:GetMouse()
-local RunService = game:GetService("RunService")
-local Plr = game.Players.LocalPlayer
-local Line = Drawing.new("Line")
-local Inset = game:GetService("GuiService"):GetGuiInset().Y
-
-local function FindClosestUser()
-    local closestPlayer
-    local shortestDistance = math.huge
-
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and
-            v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            local pos = CurrentCamera:WorldToViewportPoint(v.Character.PrimaryPart.Position)
-            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
-            if magnitude < shortestDistance then
-                closestPlayer = v
-                shortestDistance = magnitude
-            end
-        end
-    end
-    return closestPlayer
-end
-
-RunService.Stepped:Connect(function()
-    if new.main.Mario then
-        local Vector = CurrentCamera:WorldToViewportPoint(Plr.Character[new.main.Part].Position +
-                                                          (Plr.Character.HumanoidRootPart.Velocity * Prediction))
-        Line.Color = new.Tracer.TracerColor
-        Line.Thickness = new.Tracer.TracerThickness
-        Line.Transparency = new.Tracer.TracerTransparency
-        Line.From = Vector2.new(Mouse.X, Mouse.Y + Inset)
-        Line.To = Vector2.new(Vector.X, Vector.Y)
-        Line.Visible = true
-    else
-        Line.Visible = false
-    end
-end)
-
+local lp = game:GetService("Players").LocalPlayer
+local mouse = lp:GetMouse()
+local enabled = false
+local Target
 local mt = getrawmetatable(game)
 local old = mt.__namecall
 setreadonly(mt, false)
-mt.__namecall = newcclosure(function(...)
-    local args = {...}
-    if new.main.Mario and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
-        args[3] = Plr.Character[new.main.Part].Position +
-                  (Plr.Character[new.main.Part].Velocity * Prediction)
-        return old(unpack(args))
-    end
-    return old(...)
+mt.__namecall =
+newcclosure(
+function(...)
+local args = {...}
+if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
+args[3] = Target[_G.PART].Position + (Target[_G.PART].Velocity * _G.PRED)
+return old(unpack(args))
+end
+return old(...)
 end)
 
-if AirshotFunc then
-    if Plr.Character.Humanoid.Jump and Plr.Character.Humanoid.FloorMaterial == Enum.Material.Air then
-        settings.main.Part = "RightFoot"
-    else
-        Plr.Character:WaitForChild("Humanoid").StateChanged:Connect(function(_, new)
-            if new == Enum.HumanoidStateType.Freefall then
-                settings.main.Part = "LowerTorso"
-            else
-                settings.main.Part = "HumanoidRootPart"
-            end
-        end)
-    end
+
+game:GetService("RunService").RenderStepped:Connect(function() 
+    
+for i,v in pairs (game:GetService("Players"):GetPlayers()) do
+if v ~= game:GetService("Players").LocalPlayer and v.Character.BodyEffects:FindFirstChild("K.O").Value == false then 
+if mouse.Target == v.Character.HumanoidRootPart then
+    Target = v.Character
+    enabled = true
+end
+end
+if v ~= game:GetService("Players").LocalPlayer then
+if v.Character.BodyEffects:FindFirstChild("K.O").Value == false then 
+v.Character.HumanoidRootPart.Size = Vector3.new(20, 20, 20) --change to make smaller
+v.Character.HumanoidRootPart.Transparency = _G.T
+v.Character.HumanoidRootPart.CanCollide = false
+else
+v.Character.HumanoidRootPart.Size = Vector3.new(0.1, 0.1, 0.1)
+v.Character.HumanoidRootPart.Transparency = 1
+v.Character.HumanoidRootPart.CanCollide = false
+end
+if v.Character:FindFirstChild("GRABBING_CONSTRAINT") then
+    v.Character.HumanoidRootPart.Size = Vector3.new(0.1, 0.1, 0.1)
+    v.Character.HumanoidRootPart.Transparency = 1
+    v.Character.HumanoidRootPart.CanCollide = false
+end
+end
+end
+if mouse.Target.Name == "HumanoidRootPart" then
+enabled = true
+else
+enabled = false
 end
 
--- Button GUI
-local Lnr = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local TextButton = Instance.new("TextButton")
-local UICorner_2 = Instance.new("UICorner")
-
-Lnr.Name = "Lnr"
-Lnr.Parent = game.CoreGui
-Lnr.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-Frame.Parent = Lnr
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.5, -75, 0.5, -25)
-Frame.Size = UDim2.new(0, 150, 0, 50)
-Frame.Active = true
-Frame.Draggable = true
-
-local function TopContainer()
-    Frame.Position = UDim2.new(0.5, -Frame.AbsoluteSize.X / 2, 0.5, -Frame.AbsoluteSize.Y / 2)
-end
-
-TopContainer()
-Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(TopContainer)
-
-UICorner.Parent = Frame
-
-TextButton.Parent = Frame
-TextButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.BorderSizePixel = 0
-TextButton.Position = UDim2.new(0.1, 0, 0.2, 0)
-TextButton.Size = UDim2.new(0.8, 0, 0.6, 0)
-TextButton.Font = Enum.Font.GothamSemibold
-TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.TextSize = 14
-TextButton.Text = "{off}"
-
-TextButton.MouseButton1Click:Connect(function()
-    new.main.Mario = not new.main.Mario
-    if new.main.Mario then
-        TextButton.Text = "{on}"
-        Plr = FindClosestUser()
-        if new.main.Notifications then
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "Matty Revamp - Creds Thusky",
-                Text = "Locked on to: " .. tostring(Plr.Character.Humanoid.DisplayName)
-            })
-        end
-    else
-        TextButton.Text = "{off}"
-        if new.main.Notifications then
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "Matty Revamp - Creds Thusky",
-                Text = "No longer locked on"
-            })
-        end
-    end
 end)
