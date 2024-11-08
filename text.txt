@@ -56,9 +56,9 @@ local v0=loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/Dynis
 
 TextButton.MouseButton1Click:Connect(function()
     local virtualInput = game:GetService("VirtualInputManager")
-    virtualInput:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+    virtualInput:SendKeyEvent(true, Enum.KeyCode.C, false, game)
     wait(0.1)
-    virtualInput:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+    virtualInput:SendKeyEvent(false, Enum.KeyCode.C, false, game)
     
     if TextButton.Text == "{off}" then
         TextButton.Text = "{on}"
