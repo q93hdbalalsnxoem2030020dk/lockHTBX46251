@@ -1,56 +1,208 @@
-_G.PART = "HumanoidRootPart"
-_G.PRED = 0.13960
-_G.T = 0.7
+local players = game:GetService("Players")
+local camera = game.Workspace.CurrentCamera
+local localPlayer = players.LocalPlayer
 
-local lp = game:GetService("Players").LocalPlayer
-local mouse = lp:GetMouse()
-local enabled = false
-local Target
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt, false)
-mt.__namecall =
-newcclosure(
-function(...)
-local args = {...}
-if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
-args[3] = Target[_G.PART].Position + (Target[_G.PART].Velocity * _G.PRED)
-return old(unpack(args))
-end
-return old(...)
+--// Script Config \\--
+getrenv().Script = {
+    --// Settings \\--
+    Settings = {
+        --// Silent-Aim Settings \\--
+        SilentAim = {
+            Enabled = true,
+            AimPart = "RootPart", --> Advanced: ClosestPart, RootPart (HumanoidRootPart) <--
+            HitChance = 100,
+            
+            Targeting = {
+                Method = "Normal", --> Normal, Closest, Furthest <--
+                Distance = {
+                    Minimum = 0,
+                    Maximum = math.huge,
+                },
+            },
+            
+            Prediction = {
+                Enabled = true,
+                Method = "Multiplication", --> Multiplication, Division <--
+                
+                Multiplication = {
+                    Horizontal = 0.15,
+                    Vertical = 0.1,
+                },
+                
+                Division = {
+                    Horizontal = 6.5,
+                    Vertical = 10,
+                },
+                
+                Automatic = {
+                    Enabled = false,
+                    Factors = {
+                        Add = 0.1,
+                        Multiply = 0.1,
+                        Division = {
+                            Horizontal = 200,
+                            Vertical = 400,
+                        },
+                    },
+                },
+            },
+            
+        },
+        
+        --// Checks Settings \\--
+        Checks = {
+            Wall = false,
+            Knocked = false,
+            Death = false,
+            Grabbed = false,
+            Friend = false,
+            Crew = false,
+            ForceField = false,
+        },
+        
+        --// Velocity Settings \\--
+        Velocity = {
+            Type = "Velocity", --> Velocity, AssemblyLinearVelocity <--
+            
+            Minimum = {
+                X = -math.huge,
+                Y = -math.huge,
+                Z = -math.huge,
+            },
+            
+            Maximum = {
+                X = math.huge,
+                Y = math.huge,
+                Z = math.huge,
+            },
+        },
+        
+        --// Offsets Settings \\--
+        Offsets = {
+            Enabled = false,
+            Jumping = 0,
+            Falling = 0,
+        },
+        
+        --// Resolver Settings \\--
+        Resolver = {
+            Enabled = false,
+            Method = "Recalculate Velocity", --> Recalculate Velocity, Move Direction, Move Velocity <--
+            Smoothness = {
+                Enabled = false,
+                Value = 0.15,
+            },
+        },
+        
+        --// Circle Settings \\--
+        Circle = {
+            Visible = true,
+            Transparency = 1,
+            Color = Color3.fromRGB(255, 255, 255),
+            Radius = 200,
+            Position = "Crosshair", --> Crosshair, Center, Finger, Mouse <--
+            
+            --// Circle Gradient Settings \\--
+            Gradient = {
+                Enabled = true,
+                Rotation = 0,
+                
+                Colors = {
+                    One = Color3.fromRGB(255, 255, 255),
+                    Two = Color3.fromRGB(0, 0, 0),
+                },
+                
+                --// Circle Gradient Animation Settings \\--
+                Animation = {
+                    Enabled = false,
+                    Speed = 1,
+                    Offset = Vector2.new(0, 0),
+                },
+            },
+            
+            --// Circle Stroke Settings \\--
+            Stroke = {
+                Visible = true,
+                Transparency = 0,
+                Thickness = 2.5,
+                Color = Color3.fromRGB(255, 255, 255),
+                
+                --// Circle Stroke Gradient Settings \\--
+                Gradient = {
+                    Enabled = true,
+                    Rotation = 0,
+                    
+                    Colors = {
+                        One = Color3.fromRGB(255, 255, 255),
+                        Two = Color3.fromRGB(0, 0, 0),
+                    },
+                    
+                    --// Circle Stroke Gradient Animation Settings \\--
+                    Animation = {
+                        Enabled = true,
+                        Speed = 1,
+                        Offset = Vector2.new(0, 0),
+                    },
+                },
+                
+            },
+        },
+    },
+}
+
+-- Dahood Silent-Aim [NEW]
+local success, err = pcall(function()
+    loadstring(Game:HttpGet("https://rawgithubusercontent.com/TheRealXORA/Roblox/refs/heads/Main/Scripts%20/Dahood%20Silent-Aim.lua", true))() 
 end)
 
-
-game:GetService("RunService").RenderStepped:Connect(function() 
-    
-for i,v in pairs (game:GetService("Players"):GetPlayers()) do
-if v ~= game:GetService("Players").LocalPlayer and v.Character.BodyEffects:FindFirstChild("K.O").Value == false then 
-if mouse.Target == v.Character.HumanoidRootPart then
-    Target = v.Character
-    enabled = true
-end
-end
-if v ~= game:GetService("Players").LocalPlayer then
-if v.Character.BodyEffects:FindFirstChild("K.O").Value == false then 
-v.Character.HumanoidRootPart.Size = Vector3.new(20, 20, 20) --change to make smaller
-v.Character.HumanoidRootPart.Transparency = _G.T
-v.Character.HumanoidRootPart.CanCollide = false
+if not success then
+    print("") -- Do nothin
 else
-v.Character.HumanoidRootPart.Size = Vector3.new(0.1, 0.1, 0.1)
-v.Character.HumanoidRootPart.Transparency = 1
-v.Character.HumanoidRootPart.CanCollide = false
-end
-if v.Character:FindFirstChild("GRABBING_CONSTRAINT") then
-    v.Character.HumanoidRootPart.Size = Vector3.new(0.1, 0.1, 0.1)
-    v.Character.HumanoidRootPart.Transparency = 1
-    v.Character.HumanoidRootPart.CanCollide = false
-end
-end
-end
-if mouse.Target.Name == "HumanoidRootPart" then
-enabled = true
-else
-enabled = false
+    print("") -- Do nothin
 end
 
-end)
+-- Settings
+local startOffset = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y - 50)
+local lineColor = Color3.fromRGB(255, 0, 0)
+local lineThickness = 2
+
+local function createTracer(targetPlayer)
+    local tracer = Drawing.new("Line")
+    tracer.Color = lineColor
+    tracer.Thickness = lineThickness
+    tracer.Transparency = 1
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local rootPart = targetPlayer.Character.HumanoidRootPart
+            local worldPoint = rootPart.Position
+            local screenPoint, onScreen = camera:WorldToViewportPoint(worldPoint)
+
+            if onScreen then
+                tracer.From = startOffset
+                tracer.To = Vector2.new(screenPoint.X, screenPoint.Y)
+                tracer.Visible = true
+            else
+                tracer.Visible = false
+            end
+        else
+            tracer.Visible = false
+        end
+    end)
+end
+
+local function startESPTracer()
+    for _, player in pairs(players:GetPlayers()) do
+        if player ~= localPlayer then
+            createTracer(player)
+        end
+    end
+
+    players.PlayerAdded:Connect(function(player)
+        if player ~= localPlayer then
+            createTracer(player)
+        end
+    end)
+end
+
+startESPTracer() -- start the fucking esp
