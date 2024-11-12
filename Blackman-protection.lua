@@ -14,7 +14,7 @@
 
 getgenv().Enabled = true
 getgenv().Aimlockkey = "q"
-getgenv().Prediction = 0.11529944882
+getgenv().Prediction = 0.977
 getgenv().Aimpart = "HumanoidRootPart"
 getgenv().Notifications = true
 getgenv().Color = Color3.fromRGB(153, 50, 204)
@@ -23,7 +23,6 @@ getgenv().Notifications = true
 getgenv().Colorr = Color3.fromRGB(153, 50, 204)
 getgenv().Transparency = 1
 getgenv().Thickness = 3.5
-
 
 local CurrentCamera = game:GetService("Workspace").CurrentCamera
 local Inset = game:GetService("GuiService"):GetGuiInset().Y
@@ -182,7 +181,6 @@ local Settings = {
         Color = Color3.fromRGB(153, 50, 204),
         FOV = false
     }
-
 }
 
 local CurrentCamera = game:GetService("Workspace").CurrentCamera
