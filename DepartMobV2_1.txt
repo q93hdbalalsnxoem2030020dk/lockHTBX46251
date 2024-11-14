@@ -1,0 +1,433 @@
+getgenv().Depart = {
+    ["Start Up"] = {
+        JumpScare = true,
+        Macro = true,
+        Build = 'V1', -- // V1, V2
+    },
+    ["TargetAim"] = {
+        Enabled = true,
+        HitPart = "HumanoidRootPart",
+        AirPart = "Head",
+        Prediction = 0.12654,
+        Notifications = true
+    },
+    ["Camera Navigation"] = {
+        Enabled = true,
+        HitPart = "HumanoidRootPart",
+        AirPart = "Head",
+        Smoothness = 0.05,
+        Prediction = 0.03,
+        Style = "Quad",
+        ShakeValue = 0,
+        Direction = "InOut"
+    },
+    ["Spin"] = {
+        Enabled = true,
+        Keybind = "V",
+        Degrees = 360,
+        Speed = 4900
+    },
+    ["Checks"] = {
+        Wall = true,
+        Death = true,
+        Picked = false
+    },
+}
+
+-- // JumpScare \\ --
+
+if getgenv().Depart["Start Up"].JumpScare then
+    local function playIntro()
+        local xVbYwNl = Instance.new("ScreenGui")
+        local FdLmTjQ = Instance.new("Frame")
+        local YzPbEkA = Instance.new("ImageLabel")
+        local RkVsJqU = Instance.new("Sound")
+        local motionBlur = Instance.new("BlurEffect")
+
+        xVbYwNl.Name = "IntroScreen"
+        xVbYwNl.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+        FdLmTjQ.Name = "IntroFrame"
+        FdLmTjQ.Parent = xVbYwNl
+        FdLmTjQ.Size = UDim2.new(1, 0, 1, 0)
+        FdLmTjQ.BackgroundTransparency = 1
+
+        YzPbEkA.Name = "IntroImage"
+        YzPbEkA.Parent = FdLmTjQ
+        YzPbEkA.Size = UDim2.new(0.4, 0, 0.4, 0)
+        YzPbEkA.Position = UDim2.new(0.3, 0, 0.3, 0)
+        YzPbEkA.Image = "rbxassetid://113276332333710"
+        YzPbEkA.BackgroundTransparency = 1
+        YzPbEkA.ImageTransparency = 0.5  
+
+        RkVsJqU.Name = "IntroSound"
+        RkVsJqU.Parent = FdLmTjQ
+        RkVsJqU.SoundId = "rbxassetid://6580172940"
+        RkVsJqU.Volume = 10
+        RkVsJqU:Play()
+
+        motionBlur.Parent = game.Lighting
+        motionBlur.Size = 24
+
+        YzPbEkA.ImageTransparency = 1
+        local HmQpCrK = game:GetService("TweenService")
+        local DcAbLyT = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
+
+        local EiGtWjF = HmQpCrK:Create(YzPbEkA, DcAbLyT, {ImageTransparency = 0.5})
+        local UvQhZwE = HmQpCrK:Create(YzPbEkA, DcAbLyT, {ImageTransparency = 1})
+
+        EiGtWjF:Play()
+        EiGtWjF.Completed:Wait()
+
+        wait(2)
+
+        UvQhZwE:Play()
+
+        local blurTweenInfo = TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local blurTween = HmQpCrK:Create(motionBlur, blurTweenInfo, {Size = 0})
+
+        blurTween:Play()
+        blurTween.Completed:Wait()
+
+        motionBlur:Destroy()
+        UvQhZwE.Completed:Wait()
+
+        xVbYwNl:Destroy()
+    end
+
+    playIntro()
+end
+
+-- // Variables And Keys \\ -- 
+
+local Cam = workspace.CurrentCamera
+
+
+local Enabled = getgenv().Depart.TargetAim.Enabled
+local Prediction = getgenv().Depart.TargetAim.Prediction
+local Notifications = getgenv().Depart.TargetAim.Notifications
+local AimPart = getgenv().Depart.TargetAim.HitPart
+
+local Tool = Instance.new("Tool")
+Tool.RequiresHandle = false
+Tool.Name = "Lock Tool"
+
+local Camera = game:GetService("Workspace").CurrentCamera
+local Mouse = game.Players.LocalPlayer:GetMouse()
+local Plr
+local TargetPlayer
+
+local Part = Instance.new("Part")
+Part.Anchored = true
+Part.CanCollide = false
+Part.Color = Color3.fromRGB(255,0,0)
+Part.Material = Enum.Material.Neon
+Part.Size = Vector3.new(0.93, 0.93, 0.93)
+Part.Shape = Enum.PartType.Block
+
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+local player = game.Players.LocalPlayer
+local fovRadius = 90
+local Mouse = player:GetMouse()
+
+function FindClosestPlayerByFOV()
+    local closestPlayer
+    local shortestDistance = math.huge
+    
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 and
+            v.Character:FindFirstChild("HumanoidRootPart") then
+
+            local characterPosition = v.Character.HumanoidRootPart.Position
+            local viewportPosition, onScreen = Camera:WorldToViewportPoint(characterPosition)
+
+            if onScreen then
+                local distance = (Vector2.new(viewportPosition.X, viewportPosition.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).magnitude
+
+                if distance < shortestDistance and distance <= fovRadius then
+                    closestPlayer = v
+                    shortestDistance = distance
+                end
+            end
+        end
+    end
+    
+    return closestPlayer
+end
+
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game:GetService("CoreGui")
+
+local outlineFrame = Instance.new("Frame")
+outlineFrame.Size = UDim2.new(0, 110, 0, 60)
+outlineFrame.Position = UDim2.new(0.5, -55, 0.5, -30)
+outlineFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+outlineFrame.BackgroundTransparency = 0.6
+outlineFrame.Parent = screenGui
+
+local outlineCorner = Instance.new("UICorner")
+outlineCorner.CornerRadius = UDim.new(0, 14)
+outlineCorner.Parent = outlineFrame
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 100, 0, 50)
+button.Position = UDim2.new(0, 5, 0, 5)
+button.Text = "macro"
+button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+button.TextColor3 = Color3.new(1, 1, 1)
+button.Font = Enum.Font.Gotham
+button.TextSize = 24
+button.Parent = outlineFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 12)
+buttonCorner.Parent = button
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    outlineFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+outlineFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = outlineFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+outlineFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        update(input)
+    end
+end)
+
+local toggled = false
+local function diddyparty223()
+    local dicks = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not dicks then
+        return
+    end
+
+    RunService.RenderStepped:Connect(
+        function()
+            if toggled then
+                local camera = workspace.CurrentCamera
+                local cameraLook = camera.CFrame.LookVector
+                dicks.CFrame = CFrame.new(dicks.Position, dicks.Position + Vector3.new(cameraLook.X, 0, cameraLook.Z))
+            end
+        end
+    )
+end
+
+button.MouseButton1Click:Connect(
+    function()
+        toggled = not toggled
+        diddyparty223()
+    end
+)
+
+player.CharacterAdded:Connect(
+    function()
+        diddyparty223()
+    end
+)
+
+local CamENABLED = getgenv().Depart["Camera Navigation"].Enabled
+local horizontalsmooth = getgenv().Depart["Camera Navigation"].Smoothness
+local AirPart = getgenv().Depart.TargetAim.AirPart
+local ShakeX = getgenv().Depart["Camera Navigation"].ShakeValue
+local TweenService = game:GetService("TweenService")
+local SkibidiAmount = getgenv().Depart["Camera Navigation"].Prediction
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if Enabled and TargetPlayer then
+        local SkibidiFarts = game.Players:FindFirstChild(TargetPlayer) and game.Players[TargetPlayer].Character
+        if SkibidiFarts then
+            local humanoidRootPart = SkibidiFarts:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local aimPart = AimPart
+                local CamPart = getgenv().Depart["Camera Navigation"].HitPart
+
+                if SkibidiFarts:FindFirstChild(aimPart) then
+                    Part.Position = SkibidiFarts[aimPart].Position
+
+                    
+                    local VelocityDanceHipHockHipFock = humanoidRootPart.Velocity
+                    local BigHero6 = SkibidiFarts[CamPart].Position + (VelocityDanceHipHockHipFock * SkibidiAmount)
+
+                    if CamENABLED then
+                        
+                        local BigHero7 = CFrame.new(Camera.CFrame.Position, BigHero6)
+                        local IIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIIxIIIIIIIlllllllInfo = TweenInfo.new(horizontalsmooth, Enum.EasingStyle[getgenv().Depart["Camera Navigation"].Style], Enum.EasingDirection[getgenv().Depart["Camera Navigation"].Direction])
+                        local IIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIIxIIIIIIIlllllll = TweenService:Create(Camera, IIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIIxIIIIIIIlllllllInfo, {CFrame = BigHero7})
+                        IIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIlllllllIIIlllllllllllllllllllIIIIIIIIIIIIIIxIIIIIIIlllllll:Play()
+
+                        
+                        Camera.CFrame =
+                            Camera.CFrame *
+                            CFrame.Angles(math.random(-ShakeX, ShakeX) * 0.01, math.random(-ShakeX, ShakeX) * 0.01, 0)
+                    end
+                else
+                    Enabled = false
+                    Part.CFrame = CFrame.new(0, -9999, 0)
+                end
+            end
+        else
+            Part.CFrame = CFrame.new(0, -9999, 0)
+        end
+    else
+        Part.CFrame = CFrame.new(0, -9999, 0)
+    end
+end)
+        
+local function Death(Plr)
+    if game.Players[TargetPlayer].Character and game.Players[TargetPlayer].Character:FindFirstChild("BodyEffects") then
+        local bodyEffects = Plr.Character.BodyEffects
+        local ko = bodyEffects:FindFirstChild("K.O") or bodyEffects:FindFirstChild("KO")
+        return ko and ko.Value
+    end
+    return false
+end
+
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua", true))()
+
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall =
+    newcclosure(
+    function(...)
+        local args = {...}
+        local vap = {"UpdateMousePos", "GetMousePos", "MousePos", "MOUSE", "MousePosUpdate", "UpdateMousePosI", "MOUSE"}
+
+        if Enabled and getnamecallmethod() == "FireServer" and table.find(vap, args[2]) then
+            args[3] =
+                game.Players[TargetPlayer].Character[AimPart].Position +
+                (game.Players[TargetPlayer].Character[AimPart].Velocity * Prediction)
+            return old(unpack(args))
+        end
+
+        return old(...)
+    end
+)
+
+
+
+if getgenv().Depart.Spin.Enabled == true then
+    
+    local Players = game:GetService("Players")
+    local UserInputService = game:GetService("UserInputService")
+    local RunService = game:GetService("RunService")
+    local Camera = workspace.CurrentCamera
+    local Toggle = getgenv().Depart.Spin.Enabled
+    local RotationSpeed = getgenv().Depart.Spin.Speed
+    local Keybind = Enum.KeyCode[getgenv().Depart.Spin.Keybind]
+    
+    local function OnKeyPress(Input, GameProcessedEvent)
+        if Input.KeyCode == Keybind and not GameProcessedEvent then 
+            Toggle = not Toggle
+        end
+    end
+    
+    UserInputService.InputBegan:Connect(OnKeyPress)
+    
+    local LastRenderTime = 0
+    local TotalRotation = 0
+    
+    local function RotateCamera()
+        if Toggle then
+            local CurrentTime = tick()
+            local TimeDelta = math.min(CurrentTime - LastRenderTime, 0.01)
+            LastRenderTime = CurrentTime
+    
+            local RotationAngle = RotationSpeed * TimeDelta
+            local Rotation = CFrame.fromAxisAngle(Vector3.new(0, 1, 0), math.rad(RotationAngle))
+            Camera.CFrame = Camera.CFrame * Rotation
+    
+            TotalRotation = TotalRotation + RotationAngle
+            if TotalRotation >= getgenv().Depart.Spin.Degrees then 
+                Toggle = false
+                TotalRotation = 0
+            end
+        end
+    end
+    
+    RunService.RenderStepped:Connect(RotateCamera)
+    end
+
+
+
+getgenv().Loaded = true
+
+if getgenv().Loaded == true then 
+  print("Loaded Successfully")
+end
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = nil
+
+local imageButton = Instance.new("ImageButton")
+imageButton.Size = UDim2.new(0, 100, 0, 100) -- 
+imageButton.Position = UDim2.new(0, 5, 0, 5) -- 
+imageButton.Image = "rbxassetid://113276332333710" --
+imageButton.BackgroundColor3 = Color3.new(0, 0, 0, 0) -- 
+imageButton.BackgroundTransparency = 1
+imageButton.Parent = screenGui
+local StarterGui = game:GetService("StarterGui")
+
+imageButton.MouseButton1Click:Connect(function()
+    if Enabled then
+        Enabled = false
+        if Notifications then
+            Plr = FindClosestPlayerByFOV()
+            TargetPlayer = tostring(Plr)
+            StarterGui:SetCore("SendNotification", {
+                Title = "Depart",
+                Text = "unlocked "
+            })
+        end
+    else
+        Enabled = true
+        if Notifications then
+            Plr = FindClosestPlayerByFOV()
+            TargetPlayer = tostring(Plr)
+            StarterGui:SetCore("SendNotification", {
+                Title = "Depart",
+                Text = "Locked on: " .. tostring(TargetPlayer)
+            })
+        end
+    end
+end)   
+
+if getgenv().Depart["Start Up"].Macro then 
+     screenGui.Parent = game:GetService("CoreGui")
+end
